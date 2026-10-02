@@ -1,0 +1,19 @@
+﻿@model HiveCore.Models.ViewModels.PostViewModel
+@{
+    ViewData["Title"] = "New post";
+}
+
+<div class="page-column">
+    <div class="page-header">
+        <a href="javascript:history.back()" class="page-back">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1>New post</h1>
+    </div>
+
+    <partial name="_PostForm" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/js/post-edit-media.js" asp-append-version="true"></script>
+}

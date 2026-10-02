@@ -1,0 +1,107 @@
+﻿/* ============================================================
+   HiveCore — user profile customization hooks
+   These variables are overridden inline via CSS custom properties
+   injected from the user's ProfileTheme (see _Layout or Profile view).
+   ============================================================ */
+
+.profile-page {
+    --profile-primary: var(--hc-accent);
+    --profile-secondary: var(--hc-accent-hover);
+    --profile-accent: #ffe0d2;
+    --profile-bg: var(--hc-surface);
+    --profile-text: var(--hc-text);
+    --profile-font: inherit;
+    --profile-layout: default;
+}
+
+    /* Apply user's chosen font to profile content */
+    .profile-page .profile-info,
+    .profile-page .post-card,
+    .profile-page .comment-item {
+        font-family: var(--profile-font);
+    }
+
+    /* Header tinted by user's primary color */
+    .profile-page .profile-name {
+        color: var(--profile-primary);
+    }
+
+    /* Buttons use user's primary color */
+    .profile-page .btn-primary {
+        background: var(--profile-primary);
+        border-color: var(--profile-primary);
+        color: #fff;
+    }
+
+        .profile-page .btn-primary:hover {
+            background: var(--profile-secondary);
+            border-color: var(--profile-secondary);
+        }
+
+    /* Tabs use user's accent */
+    .profile-page .profile-tab.active {
+        color: var(--profile-primary);
+        border-color: var(--profile-primary);
+    }
+
+    /* Optional layout variants */
+    .profile-page[data-layout="compact"] .post-card {
+        padding: 10px 14px;
+    }
+
+    .profile-page[data-layout="compact"] .post-avatar img {
+        width: 36px;
+        height: 36px;
+    }
+
+/* Music player badge on profile */
+.profile-music {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid var(--hc-border);
+    border-radius: var(--hc-radius);
+    background: var(--profile-bg);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.profile-music-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: var(--hc-hover);
+}
+
+.profile-music-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-music-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.profile-music-artist {
+    color: var(--hc-muted);
+    font-size: 0.8rem;
+}
+
+.profile-music-btn {
+    background: var(--profile-primary);
+    border: 0;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+    .profile-music-btn:hover {
+        background: var(--profile-secondary);
+    }

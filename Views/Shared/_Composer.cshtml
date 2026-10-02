@@ -1,0 +1,80 @@
+﻿@model HiveCore.Models.ViewModels.PostViewModel
+@{
+    var formId = "composer-" + Guid.NewGuid().ToString("N")[..6];
+    var avatarUrl = User.FindFirst("avatar")?.Value ?? "/images/default-avatar.png";
+}
+
+<form id="@formId"
+      class="composer js-composer"
+      method="post"
+      action="/Post/Create"
+      enctype="multipart/form-data"
+      data-ajax="true">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ParentPostId" />
+    <input type="hidden" asp-for="IsQuote" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+
+    <div class="composer-row">
+        <div class="composer-avatar">
+            <img src="@avatarUrl" alt="Your avatar" />
+        </div>
+
+        <div class="composer-body">
+            <textarea asp-for="Content"
+                      class="composer-input js-composer-input"
+                      placeholder="What's happening?"
+                      rows="2"
+                      maxlength="2000"
+                      data-maxlength="2000"
+                      autocomplete="off"></textarea>
+            <span asp-validation-for="Content" class="text-danger small"></span>
+
+            <!-- Media preview target -->
+            <div class="composer-preview js-composer-preview" id="preview-@formId"></div>
+
+            <!-- Toolbar -->
+            <div class="composer-toolbar">
+                <label class="composer-tool" title="Add image or video">
+                    <i class="bi bi-image"></i>
+                    <input type="file"
+                           asp-for="MediaFiles"
+                           name="MediaFiles"
+                           multiple
+                           accept="image/*,video/*"
+                           hidden
+                           class="js-composer-file" />
+                </label>
+
+                <label class="composer-tool" title="Add sensitive flag">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <input type="checkbox" asp-for="IsSensitive" hidden class="js-sensitive-toggle" />
+                </label>
+
+                <div class="composer-visibility">
+                    <select asp-for="Visibility" class="composer-select">
+                        <option value="Public">🌍 Everyone</option>
+                        <option value="FollowersOnly">👥 Followers</option>
+                        <option value="Private">🔒 Only me</option>
+                    </select>
+                </div>
+
+                <div class="composer-counter" id="counter-@formId" aria-hidden="true">
+                    <span class="js-counter-value">0</span>/2000
+                </div>
+
+                <button type="submit" class="btn btn-primary ms-auto js-composer-submit">
+                    <i class="bi bi-send"></i> <span>Post</span>
+                </button>
+            </div>
+
+            <!-- Sensitive badge shown when toggled -->
+            <div class="composer-sensitive-badge js-sensitive-badge" style="display:none;">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Marked as sensitive content
+            </div>
+        </div>
+    </div>
+</form>

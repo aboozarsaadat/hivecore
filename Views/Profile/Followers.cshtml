@@ -1,0 +1,41 @@
+﻿@model IReadOnlyList<HiveCore.Models.DTOs.UserSummaryDto>
+@{
+    ViewData["Title"] = "Followers";
+    var username = (string)ViewBag.Username;
+}
+
+<div class="page-column">
+    <div class="page-header">
+        <a href="/Profile/@username" class="page-back"><i class="bi bi-arrow-left"></i></a>
+        <h1>@@@username · Followers</h1>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <h3>No followers yet</h3>
+        </div>
+    }
+    else
+    {
+        <div class="user-list">
+            @foreach (var u in Model)
+            {
+                <a href="/Profile/@u.Username" class="user-row">
+                    <img src="@(u.AvatarUrl ?? "/images/default-avatar.png")" alt="" />
+                    <div>
+                        <div class="user-row-name">
+                            @u.DisplayName
+                            @if (u.IsVerified)
+                            {
+                                <i class="bi bi-patch-check-fill post-verified"></i>
+                            }
+                        </div>
+                        <div class="user-row-handle">@@@u.Username</div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>

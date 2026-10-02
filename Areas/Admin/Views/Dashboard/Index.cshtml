@@ -1,0 +1,286 @@
+﻿@model HiveCore.Areas.Admin.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["Subtitle"] = "Overview of HiveCore activity";
+}
+
+<!-- KPI CARDS -->
+<div class="row g-3 mb-4">
+
+    <div class="col-6 col-md-3">
+        <div class="card kpi-card kpi-primary">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="kpi-label">Total Users</p>
+                        <h3 class="kpi-value">@Model.TotalUsers.ToString("N0")</h3>
+                        <p class="kpi-meta">
+                            <span class="badge bg-success-subtle text-success">+@Model.NewUsers7d this week</span>
+                        </p>
+                    </div>
+                    <i class="bi bi-people-fill kpi-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card kpi-card kpi-success">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="kpi-label">Active 24h</p>
+                        <h3 class="kpi-value">@Model.ActiveUsers24h.ToString("N0")</h3>
+                        <p class="kpi-meta">
+                            <span class="badge bg-info-subtle text-info">Last 24 hours</span>
+                        </p>
+                    </div>
+                    <i class="bi bi-activity kpi-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card kpi-card kpi-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="kpi-label">Total Posts</p>
+                        <h3 class="kpi-value">@Model.TotalPosts.ToString("N0")</h3>
+                        <p class="kpi-meta">
+                            <span class="badge bg-primary-subtle text-primary">+@Model.NewPosts24h today</span>
+                        </p>
+                    </div>
+                    <i class="bi bi-file-post kpi-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card kpi-card kpi-danger">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="kpi-label">Suspended</p>
+                        <h3 class="kpi-value">@Model.SuspendedUsers.ToString("N0")</h3>
+                        <p class="kpi-meta">
+                            <span class="badge bg-danger-subtle text-danger">Requires review</span>
+                        </p>
+                    </div>
+                    <i class="bi bi-shield-exclamation kpi-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECONDARY STATS -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="stat-mini">
+            <i class="bi bi-chat-dots"></i>
+            <div>
+                <div class="stat-mini-value">@Model.TotalComments.ToString("N0")</div>
+                <div class="stat-mini-label">Comments</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-mini">
+            <i class="bi bi-heart"></i>
+            <div>
+                <div class="stat-mini-value">@Model.TotalLikes.ToString("N0")</div>
+                <div class="stat-mini-label">Likes</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-mini">
+            <i class="bi bi-person-plus"></i>
+            <div>
+                <div class="stat-mini-value">@Model.TotalFollows.ToString("N0")</div>
+                <div class="stat-mini-label">Follows</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-mini">
+            <i class="bi bi-graph-up-arrow"></i>
+            <div>
+                <div class="stat-mini-value">+@Model.NewComments24h</div>
+                <div class="stat-mini-label">Comments (24h)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CHARTS -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Growth (Last 14 days)</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="growthChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-hash me-2"></i>Trending Hashtags (7d)</h6>
+            </div>
+            <div class="card-body">
+                @if (!Model.TrendingHashtags.Any())
+                {
+                    <p class="text-muted mb-0">No hashtags yet.</p>
+                }
+                else
+                {
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var tag in Model.TrendingHashtags)
+                        {
+                            <a href="/Explore?q=%23@tag.Tag" class="badge bg-primary-subtle text-primary text-decoration-none p-2">
+                                #@tag.Tag <span class="text-muted ms-1">@tag.Count</span>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RECENT ACTIVITY -->
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-person-plus me-2"></i>Recent Signups</h6>
+                <a href="/Admin/Users" class="btn btn-sm btn-outline-secondary">View all</a>
+            </div>
+            <div class="list-group list-group-flush">
+                @if (!Model.RecentUsers.Any())
+                {
+                    <div class="list-group-item text-muted">No users yet.</div>
+                }
+                @foreach (var u in Model.RecentUsers)
+                {
+                    <a href="/Admin/Users/Details/@u.Id" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
+                        <img src="@(u.AvatarUrl ?? "/images/default-avatar.png")"
+                             class="rounded-circle" width="36" height="36" alt="" />
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold">
+                                @u.DisplayName
+                                @if (u.IsVerified)
+                                {
+                                    <i class="bi bi-patch-check-fill text-primary ms-1"></i>
+                                }
+                            </div>
+                            <small class="text-muted">@@@u.Username</small>
+                        </div>
+                        <small class="text-muted">@HiveCore.Utilities.DateHelper.ToRelative(u.CreatedAt)</small>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0"><i class="bi bi-file-post me-2"></i>Recent Posts</h6>
+                <a href="/Admin/Posts" class="btn btn-sm btn-outline-secondary">View all</a>
+            </div>
+            <div class="list-group list-group-flush">
+                @if (!Model.RecentPosts.Any())
+                {
+                    <div class="list-group-item text-muted">No posts yet.</div>
+                }
+                @foreach (var p in Model.RecentPosts)
+                {
+                    <a href="/Admin/Posts/Details/@p.Id" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <small class="text-muted">@@@p.AuthorUsername</small>
+                            <small class="text-muted">@HiveCore.Utilities.DateHelper.ToRelative(p.CreatedAt)</small>
+                        </div>
+                        <div class="mt-1 text-truncate">
+                            @(p.Content.Length > 120 ? p.Content.Substring(0, 120) + "…" : p.Content)
+                        </div>
+                        <div class="mt-1 small text-muted">
+                            <i class="bi bi-heart"></i> @p.LikesCount
+                            <i class="bi bi-chat ms-3"></i> @p.CommentsCount
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    (function () {
+        const usersPerDay = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.UsersPerDay));
+        const postsPerDay = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PostsPerDay));
+
+        // Build a continuous 14-day series
+        const days = [];
+        const usersData = [];
+        const postsData = [];
+        const today = new Date();
+
+        for (let i = 13; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            days.push(d.toLocaleDateString('en', { month: 'short', day: 'numeric' }));
+            usersData.push(usersPerDay[key] || 0);
+            postsData.push(postsPerDay[key] || 0);
+        }
+
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: days,
+                datasets: [
+                    {
+                        label: 'New users',
+                        data: usersData,
+                        borderColor: '#0d6efd',
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'New posts',
+                        data: postsData,
+                        borderColor: '#fd7e14',
+                        backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                        tension: 0.35,
+                        fill: true,
+                        borderWidth: 2,
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                }
+            }
+        });
+    })();
+</script>
+}

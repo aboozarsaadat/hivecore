@@ -1,0 +1,370 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d10" />
+    <meta name="description" content="HiveCore — a chronological social microblog. Share what you want, when you want." />
+    <title>HiveCore — A chronological social microblog</title>
+
+    <link rel="icon" type="image/svg+xml" href="~/images/logo.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theme-dark.css" asp-append-version="true" />
+
+    <style>
+        /* ============================================================
+           Landing page — self-contained styles
+           ============================================================ */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        body.landing-body {
+            background: radial-gradient(ellipse at top, #1a1d24 0%, #0b0d10 60%);
+            color: var(--hc-text);
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .landing-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 40px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .landing-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--hc-text);
+            text-decoration: none;
+        }
+
+        .landing-brand i {
+            color: var(--hc-accent);
+            font-size: 1.9rem;
+        }
+
+        .landing-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .landing-nav-links a {
+            color: var(--hc-text);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            transition: all 0.15s ease;
+        }
+
+        .landing-nav-links a:hover {
+            background: var(--hc-hover);
+        }
+
+        .landing-nav-links a.btn-primary {
+            background: var(--hc-accent);
+            color: #fff;
+        }
+
+        .landing-nav-links a.btn-primary:hover {
+            background: var(--hc-accent-hover);
+        }
+
+        /* ============================================================
+           Hero
+           ============================================================ */
+        .landing-hero {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 24px;
+            text-align: center;
+        }
+
+        .landing-hero-inner {
+            max-width: 720px;
+        }
+
+        .landing-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 107, 53, 0.12);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 999px;
+            color: var(--hc-accent);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .landing-hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 20px;
+        }
+
+        .landing-hero h1 .accent {
+            background: linear-gradient(135deg, #ff6b35, #ffb347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .landing-hero p.lead {
+            font-size: 1.15rem;
+            color: var(--hc-muted);
+            margin-bottom: 36px;
+            line-height: 1.6;
+        }
+
+        .landing-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .landing-actions a {
+            padding: 14px 28px;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 999px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .landing-actions .btn-primary {
+            background: var(--hc-accent);
+            color: #fff;
+        }
+
+        .landing-actions .btn-primary:hover {
+            background: var(--hc-accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .landing-actions .btn-ghost {
+            background: transparent;
+            color: var(--hc-text);
+            border: 1px solid var(--hc-border);
+        }
+
+        .landing-actions .btn-ghost:hover {
+            background: var(--hc-hover);
+        }
+
+        /* ============================================================
+           Features
+           ============================================================ */
+        .landing-features {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px 24px 60px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--hc-border);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(255, 107, 53, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 107, 53, 0.12);
+            color: var(--hc-accent);
+            border-radius: 12px;
+            font-size: 1.4rem;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 0.9rem;
+            color: var(--hc-muted);
+            margin: 0;
+            line-height: 1.55;
+        }
+
+        /* ============================================================
+           Footer
+           ============================================================ */
+        .landing-footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--hc-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--hc-border);
+        }
+
+        .landing-footer a {
+            color: var(--hc-muted);
+            text-decoration: none;
+            margin: 0 8px;
+        }
+
+        .landing-footer a:hover {
+            color: var(--hc-text);
+        }
+
+        @@media (max-width: 640px) {
+            .landing-nav {
+                padding: 16px 20px;
+            }
+            .landing-nav-links a {
+                padding: 8px 12px;
+                font-size: 0.88rem;
+            }
+            .landing-hero {
+                padding: 40px 20px;
+            }
+            .landing-features {
+                padding: 0 20px 40px;
+            }
+        }
+    </style>
+</head>
+<body class="landing-body">
+
+    <!-- ===================== NAV ===================== -->
+    <header class="landing-nav">
+        <a href="/" class="landing-brand">
+            <i class="bi bi-hexagon-fill"></i>
+            <span>HiveCore</span>
+        </a>
+
+        <nav class="landing-nav-links">
+            <a href="/Explore">Explore</a>
+            <a href="/Account/Login">Sign in</a>
+            <a href="/Account/Register" class="btn-primary">
+                <i class="bi bi-person-plus"></i> Get started
+            </a>
+        </nav>
+    </header>
+
+    <!-- ===================== HERO ===================== -->
+    <main class="landing-hero">
+        <div class="landing-hero-inner">
+
+            <span class="landing-badge">
+                <i class="bi bi-lightning-charge-fill"></i>
+                A chronological social network
+            </span>
+
+            <h1>
+                Share what you want.<br />
+                <span class="accent">In the order you post it.</span>
+            </h1>
+
+            <p class="lead">
+                HiveCore is a social microblog with a <strong>chronological feed</strong> —
+                no algorithms, no engagement traps. Just posts from the people you follow,
+                in the order they made them.
+            </p>
+
+            <div class="landing-actions">
+                <a href="/Account/Register" class="btn-primary">
+                    <i class="bi bi-rocket-takeoff"></i>
+                    Create your account
+                </a>
+                <a href="/Account/Login" class="btn-ghost">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    I already have one
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- ===================== FEATURES ===================== -->
+    <section class="landing-features">
+
+        <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-clock-history"></i></div>
+            <h3>Chronological feed</h3>
+            <p>Posts appear in the order they were created. You decide what to read, not an algorithm.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-palette2"></i></div>
+            <h3>Personalize your profile</h3>
+            <p>Custom colors, themes, and even a music track on your profile. Make it yours.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-shield-lock"></i></div>
+            <h3>Privacy first</h3>
+            <p>Private accounts, sensitive-content flags, and full control over who sees what.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon"><i class="bi bi-lightning-charge"></i></div>
+            <h3>Real-time</h3>
+            <p>Live notifications, instant comments, and direct messages powered by SignalR.</p>
+        </div>
+
+    </section>
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="landing-footer">
+        <div>
+            &copy; @DateTime.UtcNow.Year HiveCore
+            <span style="opacity:0.4;">·</span>
+            <a href="/about">About</a>
+            <span style="opacity:0.4;">·</span>
+            <a href="/privacy">Privacy</a>
+            <span style="opacity:0.4;">·</span>
+            <a href="/terms">Terms</a>
+            <span style="opacity:0.4;">·</span>
+            <a href="/contact">Contact</a>
+        </div>
+    </footer>
+
+</body>
+</html>

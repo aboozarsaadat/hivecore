@@ -1,0 +1,45 @@
+﻿@model List<HiveCore.Models.DTOs.UserSummaryDto>
+
+@if (Model != null && Model.Any())
+{
+    <aside class="rail-card">
+        <header class="rail-card-header">
+            <i class="bi bi-people"></i>
+            <h3>Who to follow</h3>
+        </header>
+
+        <ul class="suggested-users">
+            @foreach (var u in Model)
+            {
+                <li class="suggested-user">
+                    <a href="/Profile/@u.Username" class="suggested-user-link">
+                        <img src="@(u.AvatarUrl ?? "/images/default-avatar.png")"
+                             alt="@u.DisplayName"
+                             class="suggested-avatar" />
+                        <div class="suggested-info">
+                            <div class="suggested-name">
+                                @u.DisplayName
+                                @if (u.IsVerified)
+                                {
+                                    <i class="bi bi-patch-check-fill post-verified"></i>
+                                }
+                            </div>
+                            <div class="suggested-handle">@@@u.Username</div>
+                        </div>
+                    </a>
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary js-follow-toggle"
+                            data-user-id="@u.Id"
+                            data-following="false"
+                            aria-label="Follow @u.Username">
+                        <i class="bi bi-person-plus"></i>
+                    </button>
+                </li>
+            }
+        </ul>
+
+        <a href="/Explore?tab=people" class="rail-card-footer">
+            Show more <i class="bi bi-arrow-right"></i>
+        </a>
+    </aside>
+}

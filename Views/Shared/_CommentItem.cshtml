@@ -1,0 +1,71 @@
+﻿@model HiveCore.Models.DTOs.CommentDto
+@{
+    var isAuth = User.Identity?.IsAuthenticated == true;
+    var authorUrl = $"/Profile/{Model.Author.Username}";
+}
+
+<div class="comment-item" data-comment-id="@Model.Id" id="comment-@Model.Id">
+
+    <a href="@authorUrl" class="comment-avatar">
+        <img src="@(Model.Author.AvatarUrl ?? "/images/default-avatar.png")" alt="@Model.Author.DisplayName" />
+    </a>
+
+    <div class="comment-body">
+        <div class="comment-header">
+            <a href="@authorUrl" class="comment-author">
+                <strong>@Model.Author.DisplayName</strong>
+                @if (Model.Author.IsVerified)
+                {
+                    <i class="bi bi-patch-check-fill post-verified"></i>
+                }
+                <span class="comment-handle">@@@Model.Author.Username</span>
+            </a>
+            <span class="post-dot">·</span>
+            <span class="comment-time" title="@Model.CreatedAt.ToString("u")">
+                @(Model.RelativeTime ?? HiveCore.Utilities.DateHelper.ToRelative(Model.CreatedAt))
+            </span>
+
+            @if (isAuth && Model.CanDelete)
+            {
+                <div class="dropdown ms-auto">
+                    <button class="post-menu" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button type="button" class="dropdown-item text-danger js-delete-comment" data-id="@Model.Id">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <div class="comment-content">
+            <p>@Model.Content</p>
+        </div>
+
+        <div class="comment-actions">
+            <button type="button"
+                    class="post-action small js-like-comment @(Model.IsLikedByCurrentUser ? "liked" : "")"
+                    data-id="@Model.Id">
+                <i class="bi @(Model.IsLikedByCurrentUser ? "bi-heart-fill" : "bi-heart")"></i>
+                <span class="js-like-count">@Model.LikesCount</span>
+            </button>
+            <button type="button" class="post-action small js-reply-comment" data-id="@Model.Id">
+                <i class="bi bi-chat"></i> Reply
+            </button>
+        </div>
+
+        @if (Model.Replies.Any())
+        {
+            <div class="comment-replies">
+                @foreach (var reply in Model.Replies)
+                {
+                    <partial name="_CommentItem" model="reply" />
+                }
+            </div>
+        }
+    </div>
+</div>

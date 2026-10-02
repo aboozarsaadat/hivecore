@@ -1,0 +1,163 @@
+﻿@model HiveCore.Areas.Admin.Controllers.AdminPostsIndexViewModel
+@{
+    ViewData["Title"] = "Posts";
+    ViewData["Subtitle"] = $"{Model.TotalCount:N0} post(s) matching your filters";
+}
+
+<!-- STATS ROW -->
+<div class="row g-2 mb-3">
+    <div class="col-6 col-md-3 col-lg">
+        <a href="/Admin/Posts?filter=" class="stat-pill @(string.IsNullOrEmpty(Model.Filter) ? "active" : "")">
+            <span>All</span><strong>@Model.Stats.Total</strong>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="/Admin/Posts?filter=live" class="stat-pill @(Model.Filter == "live" ? "active" : "")">
+            <span>Live</span><strong>@Model.Stats.Live</strong>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="/Admin/Posts?filter=deleted" class="stat-pill @(Model.Filter == "deleted" ? "active" : "")">
+            <span>Deleted</span><strong>@Model.Stats.Deleted</strong>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="/Admin/Posts?filter=hidden" class="stat-pill @(Model.Filter == "hidden" ? "active" : "")">
+            <span>Hidden</span><strong>@Model.Stats.Hidden</strong>
+        </a>
+    </div>
+    <div class="col-6 col-md-3 col-lg">
+        <a href="/Admin/Posts?filter=sensitive" class="stat-pill @(Model.Filter == "sensitive" ? "active" : "")">
+            <span>Sensitive</span><strong>@Model.Stats.Sensitive</strong>
+        </a>
+    </div>
+</div>
+
+<!-- SEARCH BAR -->
+<form method="get" action="/Admin/Posts" class="d-flex gap-2 mb-3">
+    <input type="hidden" name="filter" value="@Model.Filter" />
+    <div class="input-group">
+        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="@Model.SearchQuery"
+               class="form-control" placeholder="Search by content or author…" />
+        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <a href="/Admin/Posts?filter=@Model.Filter" class="btn btn-outline-secondary">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        }
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<!-- POSTS TABLE -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Author</th>
+                    <th>Content</th>
+                    <th class="text-center d-none d-lg-table-cell"><i class="bi bi-heart" title="Likes"></i></th>
+                    <th class="text-center d-none d-lg-table-cell"><i class="bi bi-chat" title="Comments"></i></th>
+                    <th class="text-center d-none d-lg-table-cell"><i class="bi bi-repeat" title="Reposts"></i></th>
+                    <th>Status</th>
+                    <th class="d-none d-md-table-cell">Created</th>
+                    <th style="width: 100px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @if (!Model.Posts.Any())
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                        No posts found.
+                    </td>
+                </tr>
+            }
+            @foreach (var p in Model.Posts)
+            {
+                <tr class="@(p.IsDeleted ? "table-secondary opacity-75" : "")">
+                    <td>
+                        <img src="@(p.AuthorAvatarUrl ?? "/images/default-avatar.png")"
+                             class="rounded-circle" width="32" height="32" alt="" />
+                    </td>
+                    <td style="max-width: 500px;">
+                        <div class="mb-1">
+                            <small class="text-muted">@@@p.AuthorUsername</small>
+                            @if (p.IsRepost)
+                            {
+                                <span class="badge bg-info-subtle text-info ms-1">Repost</span>
+                            }
+                            @if (p.IsQuote)
+                            {
+                                <span class="badge bg-info-subtle text-info ms-1">Quote</span>
+                            }
+                        </div>
+                        <div class="text-truncate">
+                            @(p.Content.Length > 100 ? p.Content.Substring(0, 100) + "…" : p.Content)
+                        </div>
+                    </td>
+                    <td class="text-center d-none d-lg-table-cell">@p.LikesCount</td>
+                    <td class="text-center d-none d-lg-table-cell">@p.CommentsCount</td>
+                    <td class="text-center d-none d-lg-table-cell">@p.RepostsCount</td>
+                    <td>
+                        @if (p.IsDeleted)
+                        {
+                            <span class="badge bg-secondary">Deleted</span>
+                        }
+                        else if (p.IsHidden)
+                        {
+                            <span class="badge bg-warning text-dark">Hidden</span>
+                        }
+                        else if (p.IsSensitive)
+                        {
+                            <span class="badge bg-danger-subtle text-danger">Sensitive</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success-subtle text-success">Live</span>
+                        }
+                    </td>
+                    <td class="d-none d-md-table-cell">
+                        <small class="text-muted" title="@p.CreatedAt.ToString("u")">
+                            @p.CreatedAt.ToString("yyyy-MM-dd")
+                        </small>
+                    </td>
+                    <td class="text-end">
+                        <a href="/Admin/Posts/Details/@p.Id" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PAGINATION -->
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm justify-content-center">
+            @{
+                var startPage = Math.Max(1, Model.CurrentPage - 3);
+                var endPage = Math.Min(Model.TotalPages, Model.CurrentPage + 3);
+            }
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="?q=@Model.SearchQuery&filter=@Model.Filter&page=1">&laquo;</a>
+            </li>
+            @for (var i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?q=@Model.SearchQuery&filter=@Model.Filter&page=@i">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="?q=@Model.SearchQuery&filter=@Model.Filter&page=@Model.TotalPages">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}

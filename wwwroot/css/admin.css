@@ -1,0 +1,417 @@
+﻿/* ============================================================
+   HiveCore Admin — dark theme
+   ============================================================ */
+
+:root {
+    --admin-bg: #0b0d10;
+    --admin-sidebar-bg: #111418;
+    --admin-card-bg: #171b21;
+    --admin-border: #262c34;
+    --admin-text: #e6e9ee;
+    --admin-muted: #8b93a1;
+    --admin-accent: #ff6b35;
+    --admin-accent-hover: #ff8155;
+}
+
+html, body {
+    height: 100%;
+}
+
+.admin-body {
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+}
+
+/* ============================================================
+   Layout shell
+   ============================================================ */
+.admin-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
+.admin-sidebar {
+    width: 240px;
+    background: var(--admin-sidebar-bg);
+    border-right: 1px solid var(--admin-border);
+    padding: 16px 12px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.admin-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px 20px;
+    text-decoration: none;
+    color: var(--admin-text);
+    font-weight: 700;
+    font-size: 1.15rem;
+}
+
+    .admin-brand i {
+        color: var(--admin-accent);
+        font-size: 1.5rem;
+    }
+
+    .admin-brand small {
+        color: var(--admin-muted);
+        font-weight: 400;
+        font-size: 0.75rem;
+        margin-left: auto;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+    .admin-nav hr {
+        border-color: var(--admin-border);
+        margin: 12px 0;
+        opacity: 1;
+    }
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--admin-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+}
+
+    .admin-nav-link:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--admin-text);
+    }
+
+    .admin-nav-link.active {
+        background: rgba(255, 107, 53, 0.12);
+        color: var(--admin-accent);
+        font-weight: 600;
+    }
+
+    .admin-nav-link i {
+        font-size: 1.1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+/* ============================================================
+   Main area
+   ============================================================ */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.admin-topbar {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--admin-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.admin-topbar-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.admin-topbar-subtitle {
+    margin: 2px 0 0;
+    color: var(--admin-muted);
+    font-size: 0.85rem;
+}
+
+.admin-content {
+    padding: 24px 28px;
+    flex: 1;
+}
+
+.admin-footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--admin-border);
+    color: var(--admin-muted);
+    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* ============================================================
+   KPI cards
+   ============================================================ */
+.kpi-card {
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    color: var(--admin-text);
+    transition: transform 0.15s ease;
+}
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+    }
+
+.kpi-label {
+    margin: 0 0 4px;
+    color: var(--admin-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpi-value {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.75rem;
+}
+
+.kpi-meta {
+    margin: 6px 0 0;
+    font-size: 0.78rem;
+}
+
+.kpi-icon {
+    font-size: 1.75rem;
+    opacity: 0.35;
+}
+
+.kpi-primary .kpi-icon {
+    color: #0d6efd;
+}
+
+.kpi-success .kpi-icon {
+    color: #198754;
+}
+
+.kpi-warning .kpi-icon {
+    color: #ffc107;
+}
+
+.kpi-danger .kpi-icon {
+    color: #dc3545;
+}
+
+/* ============================================================
+   Stat mini
+   ============================================================ */
+.stat-mini {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+
+    .stat-mini i {
+        font-size: 1.5rem;
+        color: var(--admin-accent);
+        opacity: 0.75;
+    }
+
+.stat-mini-value {
+    font-weight: 700;
+    font-size: 1.15rem;
+    line-height: 1.1;
+}
+
+.stat-mini-label {
+    color: var(--admin-muted);
+    font-size: 0.78rem;
+}
+
+/* ============================================================
+   Stat pills (filter chips)
+   ============================================================ */
+.stat-pill {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    color: var(--admin-text);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.15s ease;
+}
+
+    .stat-pill:hover {
+        border-color: var(--admin-accent);
+        color: var(--admin-text);
+    }
+
+    .stat-pill.active {
+        background: rgba(255, 107, 53, 0.12);
+        border-color: var(--admin-accent);
+        color: var(--admin-accent);
+        font-weight: 600;
+    }
+
+    .stat-pill strong {
+        font-size: 0.95rem;
+    }
+
+/* ============================================================
+   Cards override (Bootstrap dark)
+   ============================================================ */
+.card {
+    background: var(--admin-card-bg);
+    border: 1px solid var(--admin-border);
+    color: var(--admin-text);
+    border-radius: 12px;
+}
+
+.card-header {
+    background: transparent;
+    border-bottom: 1px solid var(--admin-border);
+    padding: 14px 18px;
+}
+
+.card-body {
+    padding: 18px;
+}
+
+.list-group-item {
+    background: var(--admin-card-bg);
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+}
+
+.list-group-item-action:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--admin-text);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--admin-text);
+    --bs-table-border-color: var(--admin-border);
+}
+
+    .table > thead {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+        .table > thead th {
+            color: var(--admin-muted);
+            font-weight: 600;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom-color: var(--admin-border);
+        }
+
+.table-hover > tbody > tr:hover > * {
+    --bs-table-accent-bg: rgba(255, 255, 255, 0.025);
+    color: var(--admin-text);
+}
+
+/* ============================================================
+   Form controls override
+   ============================================================ */
+.form-control,
+.form-select {
+    background: var(--admin-bg);
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        background: var(--admin-bg);
+        border-color: var(--admin-accent);
+        color: var(--admin-text);
+        box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.15);
+    }
+
+.input-group-text {
+    background: var(--admin-bg);
+    border-color: var(--admin-border);
+    color: var(--admin-muted);
+}
+
+/* ============================================================
+   Buttons override
+   ============================================================ */
+.btn-primary {
+    --bs-btn-bg: var(--admin-accent);
+    --bs-btn-border-color: var(--admin-accent);
+    --bs-btn-hover-bg: var(--admin-accent-hover);
+    --bs-btn-hover-border-color: var(--admin-accent-hover);
+    --bs-btn-active-bg: var(--admin-accent-hover);
+    --bs-btn-active-border-color: var(--admin-accent-hover);
+}
+
+/* ============================================================
+   Badges
+   ============================================================ */
+.badge.bg-primary-subtle {
+    background: rgba(13, 110, 253, 0.15) !important;
+}
+
+.badge.bg-success-subtle {
+    background: rgba(25, 135, 84, 0.15) !important;
+}
+
+.badge.bg-danger-subtle {
+    background: rgba(220, 53, 69, 0.15) !important;
+}
+
+.badge.bg-info-subtle {
+    background: rgba(13, 202, 240, 0.15) !important;
+}
+
+.badge.bg-warning-subtle {
+    background: rgba(255, 193, 7, 0.15) !important;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 768px) {
+    .admin-shell {
+        flex-direction: column;
+    }
+
+    .admin-sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+    }
+
+    .admin-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .admin-content,
+    .admin-topbar {
+        padding: 16px;
+    }
+}

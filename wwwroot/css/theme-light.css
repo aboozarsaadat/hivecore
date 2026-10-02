@@ -1,0 +1,74 @@
+﻿/* ============================================================
+   HiveCore — light theme (activated with data-theme="light")
+   ============================================================ */
+
+[data-theme="light"] {
+    --hc-bg: #ffffff;
+    --hc-bg-transparent: rgba(255, 255, 255, 0.85);
+    --hc-surface: #f7f8fa;
+    --hc-surface-hover: #f0f2f5;
+    --hc-border: #e4e7eb;
+    --hc-hover: rgba(0, 0, 0, 0.035);
+    --hc-text: #14181d;
+    --hc-text-soft: #3a4048;
+    --hc-muted: #6e7681;
+    --hc-accent: #ff6b35;
+    --hc-accent-hover: #e85a25;
+    color-scheme: light;
+}
+
+    [data-theme="light"] body.app-body {
+        background: var(--hc-bg);
+        color: var(--hc-text);
+    }
+
+    [data-theme="light"] .post-card,
+    [data-theme="light"] .composer,
+    [data-theme="light"] .form-card,
+    [data-theme="light"] .auth-card {
+        background: #ffffff;
+        border-color: var(--hc-border);
+    }
+
+        [data-theme="light"] .post-card:hover {
+            background: var(--hc-surface);
+        }
+
+    [data-theme="light"] .feed-tab.active,
+    [data-theme="light"] .app-post-btn,
+    [data-theme="light"] .page-btn.active {
+        color: #fff;
+    }
+
+    [data-theme="light"] .app-nav-link:hover,
+    [data-theme="light"] .post-action:hover,
+    [data-theme="light"] .post-menu:hover {
+        background: var(--hc-hover);
+    }
+
+    [data-theme="light"] .dropdown-menu {
+        background: #fff;
+        border-color: var(--hc-border);
+    }
+
+    [data-theme="light"] .dropdown-item {
+        color: var(--hc-text);
+    }
+
+        [data-theme="light"] .dropdown-item:hover {
+            background: var(--hc-surface);
+        }
+
+    [data-theme="light"] .form-control,
+    [data-theme="light"] .form-select,
+    [data-theme="light"] .composer-input,
+    [data-theme="light"] .comment-form-input,
+    [data-theme="light"] .explore-search input {
+        background: #fff;
+        color: var(--hc-text);
+        border-color: var(--hc-border);
+    }
+
+    [data-theme="light"] .app-topbar {
+        background: rgba(255, 255, 255, 0.9);
+    }

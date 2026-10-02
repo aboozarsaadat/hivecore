@@ -1,0 +1,96 @@
+﻿@model HiveCore.Models.ViewModels.ExploreViewModel
+@{
+    ViewData["Title"] = "Explore";
+}
+
+<div class="page-column page-wide">
+
+    <div class="page-header">
+        <h1>Explore</h1>
+    </div>
+
+    <!-- Search -->
+    <form method="get" action="/Explore" class="explore-search">
+        <i class="bi bi-search"></i>
+        <input type="search" name="q" value="@Model.SearchQuery" placeholder="Search posts, people, hashtags…" />
+        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <a href="/Explore" class="explore-clear"><i class="bi bi-x-lg"></i></a>
+        }
+    </form>
+
+    <!-- Tabs -->
+    <nav class="feed-tabs">
+        <a href="?tab=trending" class="feed-tab @(Model.ActiveTab == "trending" ? "active" : "")">Trending</a>
+        <a href="?tab=latest" class="feed-tab @(Model.ActiveTab == "latest" ? "active" : "")">Latest</a>
+        <a href="?tab=people" class="feed-tab @(Model.ActiveTab == "people" ? "active" : "")">People</a>
+    </nav>
+
+    @if (Model.ActiveTab == "people" || Model.SuggestedUsers.Any())
+    {
+        @if (Model.SuggestedUsers.Any())
+        {
+            <section class="explore-section">
+                <h2 class="section-title">People to follow</h2>
+                <div class="user-list">
+                    @foreach (var u in Model.SuggestedUsers)
+                    {
+                        <a href="/Profile/@u.Username" class="user-row">
+                            <img src="@(u.AvatarUrl ?? "/images/default-avatar.png")" alt="" />
+                            <div>
+                                <div class="user-row-name">
+                                    @u.DisplayName
+                                    @if (u.IsVerified)
+                                    {
+                                        <i class="bi bi-patch-check-fill post-verified"></i>
+                                    }
+                                </div>
+                                <div class="user-row-handle">@@@u.Username</div>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </section>
+        }
+    }
+
+    @if (Model.TrendingHashtags.Any())
+    {
+        <section class="explore-section">
+            <h2 class="section-title">Trending hashtags</h2>
+            <div class="hashtag-cloud">
+                @foreach (var tag in Model.TrendingHashtags)
+                {
+                    <a href="?q=%23@tag.Tag" class="hashtag-chip">
+                        <strong>#@tag.Tag</strong>
+                        <small>@tag.PostsCount posts</small>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.TrendingPosts.Any())
+    {
+        <section class="explore-section">
+            <h2 class="section-title">Posts</h2>
+            <div class="feed-list">
+                @foreach (var p in Model.TrendingPosts)
+                {
+                    <partial name="_PostCard" model="p" />
+                }
+            </div>
+        </section>
+    }
+    else if (string.IsNullOrEmpty(Model.SearchQuery))
+    {
+        <div class="empty-state">
+            <i class="bi bi-compass"></i>
+            <h3>Nothing to explore yet</h3>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/post-actions.js" asp-append-version="true"></script>
+}

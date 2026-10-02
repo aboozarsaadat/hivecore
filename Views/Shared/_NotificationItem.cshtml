@@ -1,0 +1,61 @@
+﻿@model HiveCore.Models.DTOs.NotificationDto
+@{
+    var (icon, cls, text) = Model.Type switch
+    {
+        HiveCore.Models.Entities.NotificationType.Like
+            => ("bi-heart-fill", "notif-like", "liked your post"),
+        HiveCore.Models.Entities.NotificationType.Comment
+            => ("bi-chat-fill", "notif-comment", "commented on your post"),
+        HiveCore.Models.Entities.NotificationType.Reply
+            => ("bi-reply-fill", "notif-comment", "replied to your comment"),
+        HiveCore.Models.Entities.NotificationType.Follow
+            => ("bi-person-plus-fill", "notif-follow", "started following you"),
+        HiveCore.Models.Entities.NotificationType.FollowRequest
+            => ("bi-person-plus-fill", "notif-follow", "requested to follow you"),
+        HiveCore.Models.Entities.NotificationType.FollowAccepted
+            => ("bi-person-check-fill", "notif-follow", "accepted your follow request"),
+        HiveCore.Models.Entities.NotificationType.Mention
+            => ("bi-at", "notif-mention", "mentioned you"),
+        HiveCore.Models.Entities.NotificationType.Repost
+            => ("bi-repeat", "notif-repost", "reposted your post"),
+        HiveCore.Models.Entities.NotificationType.Quote
+            => ("bi-quote", "notif-repost", "quoted your post"),
+        _ => ("bi-bell-fill", "notif-default", "sent you a notification")
+    };
+
+    var link = !string.IsNullOrWhiteSpace(Model.Url) ? Model.Url : "#";
+}
+
+<a href="@link" class="notif-item @(Model.IsRead ? "" : "unread")" data-id="@Model.Id">
+
+    <div class="notif-icon @cls">
+        <i class="bi @icon"></i>
+    </div>
+
+    <div class="notif-body">
+        <div class="notif-content">
+            @if (Model.Actor != null)
+            {
+                <strong>@Model.Actor.DisplayName</strong>
+                @if (Model.Actor.IsVerified)
+                {
+                    <i class="bi bi-patch-check-fill post-verified"></i>
+                }
+                <span>@text</span>
+            }
+            else
+            {
+                <span>@(Model.Message ?? text)</span>
+            }
+        </div>
+        <div class="notif-time">
+            @(Model.RelativeTime ?? HiveCore.Utilities.DateHelper.ToRelative(Model.CreatedAt))
+        </div>
+    </div>
+
+    @if (Model.Actor != null)
+    {
+        <img class="notif-avatar" src="@(Model.Actor.AvatarUrl ?? "/images/default-avatar.png")" alt="" />
+    }
+
+</a>

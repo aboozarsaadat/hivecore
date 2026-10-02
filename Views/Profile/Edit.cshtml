@@ -1,0 +1,171 @@
+﻿@model HiveCore.Models.ViewModels.EditProfileViewModel
+@using HiveCore.Utilities
+@{
+    ViewData["Title"] = "Edit profile";
+
+    // Safely resolve the current username from claims (no null dereference).
+    var username = User.FindFirst(Constants.Claims.Username)?.Value
+        ?? User.Identity?.Name
+        ?? string.Empty;
+
+    var profileUrl = string.IsNullOrEmpty(username)
+        ? "/"
+        : $"/Profile/{username}";
+}
+
+<div class="page-column">
+    <div class="page-header">
+        <a href="@profileUrl" class="page-back">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1>Edit profile</h1>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+        <!-- Avatar -->
+        <div class="form-group">
+            <label>Avatar</label>
+            <div class="avatar-uploader">
+                <img id="avatarPreview"
+                     src="@(Model.CurrentAvatarUrl ?? "/images/default-avatar.png")"
+                     alt="Avatar preview" />
+                <label class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-camera"></i> Change
+                    <input type="file"
+                           asp-for="AvatarFile"
+                           accept="image/*"
+                           hidden
+                           id="avatarInput" />
+                </label>
+                <span asp-validation-for="AvatarFile" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- Cover -->
+        <div class="form-group">
+            <label>Cover image</label>
+            <div class="cover-uploader">
+                <img id="coverPreview"
+                     src="@(Model.CurrentCoverUrl ?? "/images/default-cover.png")"
+                     alt="Cover preview" />
+                <label class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-camera"></i> Change
+                    <input type="file"
+                           asp-for="CoverFile"
+                           accept="image/*"
+                           hidden
+                           id="coverInput" />
+                </label>
+                <span asp-validation-for="CoverFile" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="DisplayName"></label>
+            <input asp-for="DisplayName" class="form-control" maxlength="80" />
+            <span asp-validation-for="DisplayName" class="text-danger small"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Bio"></label>
+            <textarea asp-for="Bio" class="form-control" rows="3" maxlength="500"></textarea>
+            <span asp-validation-for="Bio" class="text-danger small"></span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 form-group">
+                <label asp-for="Location"></label>
+                <input asp-for="Location" class="form-control" maxlength="200" />
+                <span asp-validation-for="Location" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 form-group">
+                <label asp-for="Website"></label>
+                <input asp-for="Website" class="form-control" type="url" maxlength="200" />
+                <span asp-validation-for="Website" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 form-group">
+                <label asp-for="Pronouns"></label>
+                <input asp-for="Pronouns" class="form-control" maxlength="100" />
+                <span asp-validation-for="Pronouns" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6 form-group">
+                <label asp-for="DateOfBirth"></label>
+                <input asp-for="DateOfBirth" class="form-control" type="date" />
+                <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="form-check mb-2">
+            <input asp-for="IsPrivate" class="form-check-input" />
+            <label asp-for="IsPrivate" class="form-check-label">
+                Private account
+                <small class="text-muted d-block">
+                    Only your approved followers can see your posts.
+                </small>
+            </label>
+        </div>
+
+        <div class="form-check mb-3">
+            <input asp-for="ShowOnlineStatus" class="form-check-input" />
+            <label asp-for="ShowOnlineStatus" class="form-check-label">
+                Show online status
+            </label>
+        </div>
+
+        <div class="d-flex gap-2 justify-content-end">
+            <a href="@profileUrl" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save changes
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // --------------------------------------------------------
+        // Local preview of selected avatar / cover before upload
+        // --------------------------------------------------------
+        (function () {
+            const avatarInput = document.getElementById('avatarInput');
+            const coverInput  = document.getElementById('coverInput');
+            const avatarImg   = document.getElementById('avatarPreview');
+            const coverImg    = document.getElementById('coverPreview');
+
+            const MAX_AVATAR_BYTES = 5 * 1024 * 1024;   // 5 MB
+            const MAX_COVER_BYTES  = 10 * 1024 * 1024;  // 10 MB
+
+            function preview(inputEl, imgEl, maxBytes, label) {
+                if (!inputEl || !imgEl) return;
+                inputEl.addEventListener('change', e => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file) return;
+
+                    if (file.size > maxBytes) {
+                        alert(`${label} must be smaller than ${Math.round(maxBytes / 1024 / 1024)} MB.`);
+                        inputEl.value = '';
+                        return;
+                    }
+
+                    if (!file.type.startsWith('image/')) {
+                        alert(`${label} must be an image file.`);
+                        inputEl.value = '';
+                        return;
+                    }
+
+                    imgEl.src = URL.createObjectURL(file);
+                });
+            }
+
+            preview(avatarInput, avatarImg, MAX_AVATAR_BYTES, 'Avatar');
+            preview(coverInput,  coverImg,  MAX_COVER_BYTES,  'Cover image');
+        })();
+    </script>
+}

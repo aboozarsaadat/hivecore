@@ -1,0 +1,186 @@
+﻿@model HiveCore.Models.ViewModels.ProfileViewModel
+@{
+    ViewData["Title"] = Model.User.DisplayName;
+    var theme = Model.User.Theme;
+    var isMediaTab = Model.Tab == "media";
+    var isLikesTab = Model.Tab == "likes";
+    var isPostsTab = Model.Tab == "posts";
+}
+
+<div class="profile-page">
+
+    <!-- Cover -->
+    <div class="profile-cover"
+         style="@(theme != null && !string.IsNullOrWhiteSpace(theme.BackgroundGradient)
+             ? $"background: {theme.BackgroundGradient};"
+             : "")">
+        @if (!string.IsNullOrWhiteSpace(Model.User.CoverUrl))
+        {
+            <img src="@Model.User.CoverUrl" alt="" />
+        }
+    </div>
+
+    <!-- Header -->
+    <div class="profile-header">
+        <div class="profile-avatar-wrap">
+            <img src="@(Model.User.AvatarUrl ?? "/images/default-avatar.png")"
+                 class="profile-avatar" alt="@Model.User.DisplayName" />
+        </div>
+
+        <div class="profile-actions">
+            @if (Model.IsOwnProfile)
+            {
+                <a href="/Profile/Edit" class="btn btn-outline-secondary">
+                    <i class="bi bi-pencil"></i> Edit profile
+                </a>
+            }
+            else if (User.Identity?.IsAuthenticated == true)
+            {
+                if (Model.IsFollowing)
+                {
+                    <button type="button" class="btn btn-outline-secondary js-follow-toggle"
+                            data-user-id="@Model.User.Id" data-following="true">
+                        <i class="bi bi-check2"></i> Following
+                    </button>
+                }
+                else if (Model.IsFollowPending)
+                {
+                    <button type="button" class="btn btn-outline-secondary" disabled>
+                        <i class="bi bi-hourglass-split"></i> Requested
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary js-follow-toggle"
+                            data-user-id="@Model.User.Id" data-following="false">
+                        <i class="bi bi-person-plus"></i> Follow
+                    </button>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="profile-info">
+        <h1 class="profile-name">
+            @Model.User.DisplayName
+            @if (Model.User.IsVerified)
+            {
+                <i class="bi bi-patch-check-fill post-verified"></i>
+            }
+            @if (Model.User.IsPrivate)
+            {
+                <i class="bi bi-lock-fill text-warning" title="Private"></i>
+            }
+        </h1>
+        <p class="profile-handle">@@@Model.User.Username</p>
+
+        @if (!string.IsNullOrWhiteSpace(Model.User.Bio))
+        {
+            <p class="profile-bio">@Model.User.Bio</p>
+        }
+
+        <div class="profile-meta">
+            @if (!string.IsNullOrWhiteSpace(Model.User.Location))
+            {
+                <span><i class="bi bi-geo-alt"></i> @Model.User.Location</span>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.User.Website))
+            {
+                <span>
+                    <i class="bi bi-link-45deg"></i>
+                    <a href="@Model.User.Website" target="_blank" rel="noopener nofollow">@Model.User.Website</a>
+                </span>
+            }
+            <span><i class="bi bi-calendar3"></i> @HiveCore.Utilities.DateHelper.ToJoinedLabel(Model.User.CreatedAt)</span>
+        </div>
+
+        <div class="profile-stats">
+            <a href="/Profile/@Model.User.Username/following">
+                <strong>@Model.FollowingCount</strong> <span>Following</span>
+            </a>
+            <a href="/Profile/@Model.User.Username/followers">
+                <strong>@Model.FollowersCount</strong> <span>Followers</span>
+            </a>
+            <span><strong>@Model.PostsCount</strong> <span>Posts</span></span>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="profile-tabs">
+        <a href="?tab=posts"
+           class="profile-tab @(isPostsTab ? "active" : "")">
+            <i class="bi bi-grid-3x3-gap"></i> Posts
+        </a>
+        <a href="?tab=media"
+           class="profile-tab @(isMediaTab ? "active" : "")">
+            <i class="bi bi-image"></i> Media
+        </a>
+        <a href="?tab=likes"
+           class="profile-tab @(isLikesTab ? "active" : "")">
+            <i class="bi bi-heart"></i> Likes
+        </a>
+    </nav>
+
+    <!-- Content -->
+    @if (!Model.CanViewContent)
+    {
+        <div class="private-lock">
+            <i class="bi bi-lock-fill"></i>
+            <h3>This account is private</h3>
+            <p>Follow this user to see their posts.</p>
+        </div>
+    }
+    else if (!Model.Posts.Any())
+    {
+        <div class="empty-state">
+            @if (isMediaTab)
+            {
+                <i class="bi bi-image"></i>
+                <h3>No media yet</h3>
+                <p>@(Model.IsOwnProfile
+                    ? "When you post photos or videos, they'll show up here."
+                    : $"{Model.User.DisplayName} hasn't posted any media yet.")</p>
+            }
+            else if (isLikesTab)
+            {
+                <i class="bi bi-heart"></i>
+                <h3>No liked posts yet</h3>
+                <p>@(Model.IsOwnProfile
+                    ? "Posts you like will appear here."
+                    : $"{Model.User.DisplayName} hasn't liked any posts yet.")</p>
+            }
+            else
+            {
+                <i class="bi bi-inbox"></i>
+                <h3>No posts yet</h3>
+                <p>@(Model.IsOwnProfile
+                    ? "Share your first post to get started."
+                    : $"{Model.User.DisplayName} hasn't posted anything yet.")</p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="feed-list">
+            @foreach (var p in Model.Posts)
+            {
+                <partial name="_PostCard" model="p" />
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <partial name="_Pagination" model="@(new HiveCore.Models.ViewModels.PaginationViewModel
+            {
+                CurrentPage = Model.CurrentPage,
+                TotalPages = Model.TotalPages,
+                BaseUrl = $"/Profile/{Model.User.Username}?tab={Model.Tab}"
+            })" />
+        }
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/post-actions.js" asp-append-version="true"></script>
+}

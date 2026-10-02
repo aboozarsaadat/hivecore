@@ -1,0 +1,188 @@
+﻿@model HiveCore.Areas.Admin.Controllers.AdminPostDetailsViewModel
+@{
+    ViewData["Title"] = "Post details";
+    ViewData["Subtitle"] = $"Posted by @@@Model.AuthorUsername";
+}
+
+<div class="row g-3">
+
+    <!-- LEFT: Post content -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="@(Model.AuthorAvatarUrl ?? "/images/default-avatar.png")"
+                         class="rounded-circle" width="36" height="36" alt="" />
+                    <div>
+                        <div class="fw-semibold">@Model.AuthorDisplayName</div>
+                        <small class="text-muted">@@@Model.AuthorUsername</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <small class="text-muted d-block" title="@Model.CreatedAt.ToString("u")">
+                        @HiveCore.Utilities.DateHelper.ToRelative(Model.CreatedAt)
+                    </small>
+                    @if (Model.UpdatedAt != Model.CreatedAt)
+                    {
+                        <small class="text-muted">edited @HiveCore.Utilities.DateHelper.ToRelative(Model.UpdatedAt)</small>
+                    }
+                </div>
+            </div>
+
+            <div class="card-body">
+                @if (Model.IsRepost || Model.IsQuote)
+                {
+                    <span class="badge bg-info-subtle text-info mb-2">
+                        <i class="bi bi-repeat me-1"></i>@(Model.IsQuote ? "Quote" : "Repost")
+                    </span>
+                }
+
+                <p style="white-space: pre-wrap;">@Model.Content</p>
+
+                @if (Model.MediaUrls.Any())
+                {
+                    <div class="row g-2 mt-2">
+                        @foreach (var url in Model.MediaUrls)
+                        {
+                            <div class="col-6 col-md-4">
+                                <a href="@url" target="_blank">
+                                    <img src="@url" class="img-fluid rounded border" alt="" />
+                                </a>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (Model.ParentPostId.HasValue)
+                {
+                    <div class="border-start border-3 ps-3 mt-3 bg-light bg-opacity-10 rounded p-2">
+                        <small class="text-muted">
+                            <i class="bi bi-quote"></i> Parent post by <strong>@@@Model.ParentAuthorUsername</strong>
+                        </small>
+                        <div class="mt-1 text-truncate">@Model.ParentContent</div>
+                        <a href="/Admin/Posts/Details/@Model.ParentPostId" class="small">
+                            <i class="bi bi-box-arrow-up-right"></i> Open parent
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Moderation note -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-journal-text me-2"></i>Moderation note</h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/Admin/Posts/AddNote/@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <textarea name="note" class="form-control" rows="3"
+                              placeholder="Internal note for moderators…">@Model.ModerationNote</textarea>
+                    <button type="submit" class="btn btn-primary btn-sm mt-2">
+                        <i class="bi bi-save"></i> Save note
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Stats + Actions -->
+    <div class="col-lg-4">
+
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Engagement</h6>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><i class="bi bi-heart text-danger me-2"></i>Likes</span>
+                    <strong>@Model.LikesCount</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><i class="bi bi-chat text-primary me-2"></i>Comments</span>
+                    <strong>@Model.CommentsCount <small class="text-muted">(@Model.TotalComments total)</small></strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><i class="bi bi-repeat text-info me-2"></i>Reposts</span>
+                    <strong>@Model.RepostsCount</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><i class="bi bi-bookmark text-warning me-2"></i>Bookmarks</span>
+                    <strong>@Model.BookmarksCount</strong>
+                </li>
+                <li class="list-group-item d-flex justify-content-between">
+                    <span><i class="bi bi-eye text-secondary me-2"></i>Views</span>
+                    <strong>@Model.ViewsCount</strong>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions</h6>
+            </div>
+            <div class="card-body d-flex flex-column gap-2">
+                <form method="post" action="/Admin/Posts/Hide/@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm w-100 @(Model.IsHidden ? "btn-outline-success" : "btn-warning")">
+                        <i class="bi bi-eye-slash"></i>
+                        @(Model.IsHidden ? "Unhide post" : "Hide post")
+                    </button>
+                </form>
+
+                <form method="post" action="/Admin/Posts/MarkSensitive/@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm w-100 @(Model.IsSensitive ? "btn-outline-success" : "btn-outline-danger")">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        @(Model.IsSensitive ? "Remove sensitive flag" : "Mark as sensitive")
+                    </button>
+                </form>
+
+                <form method="post" action="/Admin/Posts/SoftDelete/@Model.Id"
+                      onsubmit="return confirm('@(Model.IsDeleted ? "Restore this post?" : "Soft-delete this post?")');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm w-100 @(Model.IsDeleted ? "btn-outline-success" : "btn-outline-danger")">
+                        <i class="bi bi-trash"></i>
+                        @(Model.IsDeleted ? "Restore post" : "Soft delete post")
+                    </button>
+                </form>
+
+                <hr class="my-2" />
+
+                <a href="/Post/@Model.Id" target="_blank" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-box-arrow-up-right"></i> View public post
+                </a>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Metadata</h6>
+            </div>
+            <div class="card-body small">
+                <dl class="row mb-0">
+                    <dt class="col-5">Post ID</dt>
+                    <dd class="col-7"><code>@Model.Id</code></dd>
+                    <dt class="col-5">Visibility</dt>
+                    <dd class="col-7">@Model.Visibility</dd>
+                    <dt class="col-5">Created</dt>
+                    <dd class="col-7">@Model.CreatedAt.ToString("u")</dd>
+                    @if (Model.DeletedAt.HasValue)
+                    {
+                        <dt class="col-5">Deleted</dt>
+                        <dd class="col-7">@Model.DeletedAt.Value.ToString("u")</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3 d-flex gap-2">
+    <a href="/Admin/Posts" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to posts
+    </a>
+    <a href="/Admin/Users/Details/@Model.AuthorId" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-person"></i> View author
+    </a>
+</div>

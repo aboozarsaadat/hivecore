@@ -1,0 +1,46 @@
+﻿@model HiveCore.Models.ViewModels.NotificationListViewModel
+@{
+    ViewData["Title"] = "Notifications";
+}
+
+<div class="page-column">
+    <div class="page-header">
+        <h1>Notifications</h1>
+        @if (Model.UnreadCount > 0)
+        {
+            <form method="post" action="/Notification/MarkAllRead" class="ms-auto">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-check2-all"></i> Mark all read
+                </button>
+            </form>
+        }
+    </div>
+
+    @if (!Model.Notifications.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-bell-slash"></i>
+            <h3>No notifications yet</h3>
+            <p>When someone interacts with you, you'll see it here.</p>
+        </div>
+    }
+    else
+    {
+        <div class="notif-list">
+            @foreach (var n in Model.Notifications)
+            {
+                <partial name="_NotificationItem" model="n" />
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <partial name="_Pagination" model="@(new HiveCore.Models.ViewModels.PaginationViewModel {
+                CurrentPage = Model.CurrentPage,
+                TotalPages = Model.TotalPages,
+                BaseUrl = "/Notification"
+            })" />
+        }
+    }
+</div>

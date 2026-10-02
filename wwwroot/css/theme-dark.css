@@ -1,0 +1,69 @@
+﻿/* ============================================================
+   HiveCore — dark theme (default)
+   ============================================================ */
+
+[data-theme="dark"], :root {
+    --hc-bg: #0b0d10;
+    --hc-bg-transparent: rgba(11, 13, 16, 0.85);
+    --hc-surface: #14181d;
+    --hc-surface-hover: #191e24;
+    --hc-border: #262c34;
+    --hc-hover: rgba(255, 255, 255, 0.05);
+    --hc-text: #e6e9ee;
+    --hc-text-soft: #c0c6d0;
+    --hc-muted: #8b93a1;
+    --hc-accent: #ff6b35;
+    --hc-accent-hover: #ff8155;
+    color-scheme: dark;
+}
+
+    /* Bootstrap dark overrides */
+    [data-theme="dark"] .btn-primary {
+        --bs-btn-bg: var(--hc-accent);
+        --bs-btn-border-color: var(--hc-accent);
+        --bs-btn-hover-bg: var(--hc-accent-hover);
+        --bs-btn-hover-border-color: var(--hc-accent-hover);
+        --bs-btn-active-bg: var(--hc-accent-hover);
+        --bs-btn-active-border-color: var(--hc-accent-hover);
+        --bs-btn-focus-shadow-rgb: 255, 107, 53;
+    }
+
+    [data-theme="dark"] .btn-outline-secondary {
+        --bs-btn-color: var(--hc-text-soft);
+        --bs-btn-border-color: var(--hc-border);
+        --bs-btn-hover-bg: var(--hc-hover);
+        --bs-btn-hover-border-color: var(--hc-border);
+        --bs-btn-hover-color: var(--hc-text);
+    }
+
+    [data-theme="dark"] .alert-success {
+        background: rgba(25, 135, 84, 0.12);
+        border-color: rgba(25, 135, 84, 0.3);
+        color: #7ee2a8;
+    }
+
+    [data-theme="dark"] .alert-danger {
+        background: rgba(220, 53, 69, 0.12);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #f5a6ae;
+    }
+
+    [data-theme="dark"] .alert-info {
+        background: rgba(13, 202, 240, 0.1);
+        border-color: rgba(13, 202, 240, 0.3);
+        color: #a5e0f0;
+    }
+
+    [data-theme="dark"] .dropdown-menu {
+        background: var(--hc-surface);
+        border-color: var(--hc-border);
+    }
+
+    [data-theme="dark"] .dropdown-item {
+        color: var(--hc-text);
+    }
+
+        [data-theme="dark"] .dropdown-item:hover {
+            background: var(--hc-hover);
+            color: var(--hc-text);
+        }

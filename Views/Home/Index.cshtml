@@ -1,0 +1,55 @@
+﻿@model HiveCore.Models.ViewModels.HomeFeedViewModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="page-column">
+
+    <!-- Feed tabs -->
+    <nav class="feed-tabs">
+        <a href="?feedType=for-you" class="feed-tab @(Model.FeedType == "for-you" ? "active" : "")">For you</a>
+        <a href="?feedType=following" class="feed-tab @(Model.FeedType == "following" ? "active" : "")">Following</a>
+        <a href="?feedType=latest" class="feed-tab @(Model.FeedType == "latest" ? "active" : "")">Latest</a>
+    </nav>
+
+    <!-- Composer -->
+    <partial name="_Composer" model="Model.NewPost" />
+
+    <!-- Feed -->
+    <div class="feed-list" id="feedList">
+        @if (!Model.Posts.Any())
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h3>No posts yet</h3>
+                <p>Follow some users to see their posts here.</p>
+                <a href="/Explore" class="btn btn-primary">Explore HiveCore</a>
+            </div>
+        }
+        else
+        {
+            foreach (var post in Model.Posts)
+            {
+                <partial name="_PostCard" model="post" />
+            }
+        }
+    </div>
+
+    <!-- Load more -->
+    @if (Model.HasMore)
+    {
+        <div class="load-more">
+            <button class="btn btn-outline-secondary" id="loadMoreBtn"
+                    data-page="@(Model.CurrentPage + 1)"
+                    data-feed="@Model.FeedType">
+                Load more
+            </button>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/feed.js" asp-append-version="true"></script>
+    <script src="~/js/post-actions.js" asp-append-version="true"></script>
+    <script src="~/js/composer.js" asp-append-version="true"></script>
+}

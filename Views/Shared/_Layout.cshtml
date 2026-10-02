@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0d10" />
+    <meta name="description" content="HiveCore — a chronological social microblog." />
+    <title>@(ViewData["Title"] != null ? $"{ViewData["Title"]} — HiveCore" : "HiveCore")</title>
+
+    <link rel="icon" type="image/svg+xml" href="~/images/logo.svg" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theme-dark.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theme-light.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    @Html.AntiForgeryToken()
+</head>
+<body class="app-body">
+
+    <div class="app-shell">
+
+        <!-- ===================== SIDEBAR ===================== -->
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <partial name="_Sidebar" />
+        }
+
+        <!-- ===================== MAIN ===================== -->
+        <div class="app-main">
+
+            <!-- Topbar -->
+            <header class="app-topbar">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <button type="button" class="app-menu-toggle d-lg-none" aria-label="Menu">
+                        <i class="bi bi-list"></i>
+                    </button>
+                }
+
+                <a href="/" class="app-mobile-brand d-lg-none">
+                    <i class="bi bi-hexagon-fill"></i>
+                    <span>HiveCore</span>
+                </a>
+
+                <div class="app-topbar-spacer"></div>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a href="/Notification" class="app-topbar-icon" title="Notifications" id="notifBell">
+                        <i class="bi bi-bell"></i>
+                        <span class="app-badge" id="notifBadge" style="display:none;">0</span>
+                    </a>
+                }
+            </header>
+
+            <!-- Flash messages -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mx-3 mt-3" role="alert">
+                    <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mx-3 mt-3" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-info alert-dismissible fade show mx-3 mt-3" role="alert">
+                    <i class="bi bi-info-circle me-2"></i> @TempData["Info"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Content -->
+            <main class="app-content">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <span>&copy; @DateTime.UtcNow.Year HiveCore</span>
+                <span class="app-footer-dot">·</span>
+                <a href="/about">About</a>
+                <span class="app-footer-dot">·</span>
+                <a href="/privacy">Privacy</a>
+                <span class="app-footer-dot">·</span>
+                <a href="/terms">Terms</a>
+            </footer>
+        </div>
+
+        <!-- ===================== RIGHT RAIL ===================== -->
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <aside class="app-rail d-none d-xl-block">
+                @await Component.InvokeAsync("TrendingHashtags")
+                @await Component.InvokeAsync("SuggestedUsers")
+            </aside>
+        }
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/js/notification.js" asp-append-version="true"></script>
+        <script src="~/js/realtime.js" asp-append-version="true"></script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

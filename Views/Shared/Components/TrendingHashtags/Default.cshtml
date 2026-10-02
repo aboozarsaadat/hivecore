@@ -1,0 +1,44 @@
+﻿@model List<HiveCore.Models.ViewModels.TrendingHashtagViewModel>
+
+<aside class="rail-card">
+    <header class="rail-card-header">
+        <i class="bi bi-fire"></i>
+        <h3>Trending now</h3>
+    </header>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="rail-empty">
+            <i class="bi bi-hash"></i>
+            <p>No trends yet.</p>
+        </div>
+    }
+    else
+    {
+        <ol class="trending-list">
+            @{
+                var index = 1;
+            }
+            @foreach (var tag in Model)
+            {
+                <li class="trending-item">
+                    <a href="/Explore?q=%23@tag.Tag" class="trending-link">
+                        <div class="trending-rank">@index</div>
+                        <div class="trending-body">
+                            <div class="trending-tag">#@tag.Tag</div>
+                            <div class="trending-count">
+                                @tag.PostsCount post@(tag.PostsCount == 1 ? "" : "s")
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                index++;
+            }
+        </ol>
+
+        <a href="/Explore" class="rail-card-footer">
+            Show more <i class="bi bi-arrow-right"></i>
+        </a>
+    }
+</aside>

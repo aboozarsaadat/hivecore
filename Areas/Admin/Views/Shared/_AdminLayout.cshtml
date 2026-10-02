@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — HiveCore Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="admin-body">
+    <div class="admin-shell">
+
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <a href="/Admin/Dashboard" class="admin-brand">
+                <i class="bi bi-hexagon-fill"></i>
+                <span>HiveCore</span>
+                <small>Admin</small>
+            </a>
+
+            <nav class="admin-nav">
+                <a class="admin-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")"
+                   href="/Admin/Dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                <a class="admin-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")"
+                   href="/Admin/Users">
+                    <i class="bi bi-people"></i> Users
+                </a>
+                <a class="admin-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Posts" ? "active" : "")"
+                   href="/Admin/Posts">
+                    <i class="bi bi-file-post"></i> Posts
+                </a>
+                <hr />
+                <a class="admin-nav-link" href="/" target="_blank">
+                    <i class="bi bi-box-arrow-up-right"></i> View site
+                </a>
+                <form method="post" action="/Account/Logout" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="admin-nav-link text-danger w-100 text-start border-0 bg-transparent">
+                        <i class="bi bi-box-arrow-right"></i> Sign out
+                    </button>
+                </form>
+            </nav>
+        </aside>
+
+        <!-- Main content -->
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <div>
+                    <h1 class="admin-topbar-title">@ViewData["Title"]</h1>
+                    @if (ViewData["Subtitle"] != null)
+                    {
+                        <p class="admin-topbar-subtitle">@ViewData["Subtitle"]</p>
+                    }
+                </div>
+                <div class="admin-topbar-user">
+                    <span class="text-muted small">@DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm") UTC</span>
+                </div>
+            </header>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <main class="admin-content">
+                @RenderBody()
+            </main>
+
+            <footer class="admin-footer">
+                <span>&copy; @DateTime.UtcNow.Year HiveCore</span>
+                <span>v@(HiveCore.Utilities.Constants.AppVersion)</span>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

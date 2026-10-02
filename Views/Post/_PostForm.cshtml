@@ -1,0 +1,100 @@
+﻿@model HiveCore.Models.ViewModels.PostViewModel
+@{
+    var formId = "postForm-" + Guid.NewGuid().ToString("N")[..6];
+    var isEdit = Model.Id.HasValue;
+    var actionUrl = isEdit ? $"/Post/Edit/{Model.Id}" : "/Post/Create";
+    var avatarUrl = User.FindFirst("avatar")?.Value ?? "/images/default-avatar.png";
+}
+
+<form id="@formId"
+      method="post"
+      action="@actionUrl"
+      enctype="multipart/form-data"
+      class="composer js-post-form"
+      data-form-id="@formId">
+
+    @Html.AntiForgeryToken()
+
+    @* Hidden fields required by the model binder *@
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ParentPostId" />
+    <input type="hidden" asp-for="IsQuote" />
+    <input type="hidden" asp-for="Visibility" />
+    <input type="hidden" asp-for="IsSensitive" />
+
+    @* Container for dynamically-added hidden inputs (media to delete) *@
+    <div id="mediaToDelete-@formId" class="js-media-to-delete"></div>
+
+    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+
+    <div class="composer-row">
+        <div class="composer-avatar">
+            <img src="@avatarUrl" alt="You" />
+        </div>
+
+        <div class="composer-body">
+            <textarea asp-for="Content"
+                      class="composer-input js-composer-input"
+                      placeholder="What's happening?"
+                      rows="3"
+                      maxlength="2000"
+                      data-maxlength="2000"></textarea>
+            <span asp-validation-for="Content" class="text-danger small"></span>
+
+            @* ============================================================ *@
+            @* Existing media (edit mode only)                              *@
+            @* ============================================================ *@
+            @if (isEdit && Model.ExistingMedia.Any())
+            {
+                <div class="composer-existing-media js-existing-media">
+                    @foreach (var m in Model.ExistingMedia)
+                    {
+                        var thumb = m.Type == HiveCore.Models.Entities.MediaType.Video
+                            ? (m.ThumbnailUrl ?? m.Url)
+                            : m.Url;
+                        <div class="existing-media-item js-existing-item" data-media-id="@m.Id">
+                            <img src="@thumb" alt="@(m.AltText ?? "")" />
+                            <button type="button"
+                                    class="existing-media-remove js-remove-media"
+                                    data-media-id="@m.Id"
+                                    data-form-id="@formId"
+                                    title="Remove this media">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* ============================================================ *@
+            @* Preview for newly-added media                                *@
+            @* ============================================================ *@
+            <div id="mediaPreview-@formId" class="composer-preview js-new-media-preview"></div>
+
+            @* ============================================================ *@
+            @* Toolbar                                                      *@
+            @* ============================================================ *@
+            <div class="composer-toolbar">
+                <label class="composer-tool" title="Add image or video">
+                    <i class="bi bi-image"></i>
+                    <input type="file"
+                           asp-for="MediaFiles"
+                           name="MediaFiles"
+                           multiple
+                           accept="image/*,video/*"
+                           hidden
+                           class="js-media-input"
+                           id="mediaInput-@formId" />
+                </label>
+
+                <div class="composer-counter" id="counter-@formId" aria-hidden="true">
+                    <span class="js-counter-value">0</span>/2000
+                </div>
+
+                <button type="submit" class="btn btn-primary ms-auto js-submit">
+                    <i class="bi bi-send"></i> @(isEdit ? "Save changes" : "Post")
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

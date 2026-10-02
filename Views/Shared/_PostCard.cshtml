@@ -1,0 +1,223 @@
+﻿@model HiveCore.Models.DTOs.PostDto
+@{
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+
+    // Determine display mode
+    var isPlainRepost = Model.IsRepost && !Model.IsQuote && Model.ParentPost != null;
+    var isQuote = Model.IsQuote && Model.ParentPost != null;
+
+    // For plain reposts, the main body shows the PARENT post
+    var display = isPlainRepost ? Model.ParentPost! : Model;
+
+    var displayAuthorUrl = $"/Profile/{display.Author.Username}";
+    var displayPostUrl = $"/Post/{display.Id}";
+}
+
+<article class="post-card" data-post-id="@Model.Id">
+
+    @* ============================================================ *@
+    @* Repost context header (only for plain reposts)               *@
+    @* ============================================================ *@
+    @if (isPlainRepost)
+    {
+        <div class="post-repost-header">
+            <i class="bi bi-repeat"></i>
+            <a href="/Profile/@Model.Author.Username" class="post-repost-author">
+                <strong>@Model.Author.DisplayName</strong>
+            </a>
+            <span>reposted</span>
+            <span class="post-dot">·</span>
+            <a href="/Post/@Model.Id" class="post-time"
+               title="@Model.CreatedAt.ToString("u")">
+                @(Model.RelativeTime ?? HiveCore.Utilities.DateHelper.ToRelative(Model.CreatedAt))
+            </a>
+        </div>
+    }
+    else if (isQuote)
+    {
+        <div class="post-repost-header">
+            <i class="bi bi-quote"></i>
+            <a href="/Profile/@Model.Author.Username" class="post-repost-author">
+                <strong>@Model.Author.DisplayName</strong>
+            </a>
+            <span>quoted</span>
+            <span class="post-dot">·</span>
+            <a href="/Post/@Model.Id" class="post-time"
+               title="@Model.CreatedAt.ToString("u")">
+                @(Model.RelativeTime ?? HiveCore.Utilities.DateHelper.ToRelative(Model.CreatedAt))
+            </a>
+        </div>
+    }
+
+    <div class="post-layout">
+
+        @* ============================================================ *@
+        @* Avatar (of the ORIGINAL author for reposts, else own author) *@
+        @* ============================================================ *@
+        <a href="@displayAuthorUrl" class="post-avatar">
+            <img src="@(display.Author.AvatarUrl ?? "/images/default-avatar.png")"
+                 alt="@display.Author.DisplayName" />
+        </a>
+
+        <div class="post-body">
+
+            @* ============================================================ *@
+            @* Header — original author + original post time                *@
+            @* ============================================================ *@
+            <header class="post-header">
+                <a href="@displayAuthorUrl" class="post-author">
+                    <span class="post-author-name">
+                        @display.Author.DisplayName
+                        @if (display.Author.IsVerified)
+                        {
+                            <i class="bi bi-patch-check-fill post-verified" title="Verified"></i>
+                        }
+                    </span>
+                    <span class="post-author-handle">@@@display.Author.Username</span>
+                </a>
+                <span class="post-dot">·</span>
+                <a href="@displayPostUrl" class="post-time"
+                   title="@display.CreatedAt.ToString("u")">
+                    @(display.RelativeTime ?? HiveCore.Utilities.DateHelper.ToRelative(display.CreatedAt))
+                </a>
+
+                @* Menu — only shown for own posts (not for reposts of others' posts) *@
+                @if (isAuthenticated && !isPlainRepost && Model.CanDelete)
+                {
+                    <div class="dropdown ms-auto">
+                        <button class="post-menu" type="button" data-bs-toggle="dropdown" aria-label="More">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            @if (Model.CanEdit)
+                            {
+                                <li>
+                                    <a class="dropdown-item" href="/Post/Edit/@Model.Id">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                </li>
+                            }
+                            <li>
+                                <button type="button" class="dropdown-item text-danger js-delete-post" data-id="@Model.Id">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                else if (isAuthenticated && isPlainRepost && currentUserId == Model.Author.Id.ToString())
+                {
+                    @* Reposter can undo their repost *@
+                    <div class="dropdown ms-auto">
+                        <button class="post-menu" type="button" data-bs-toggle="dropdown" aria-label="More">
+                            <i class="bi bi-three-dots"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <button type="button" class="dropdown-item text-danger js-delete-post" data-id="@Model.Id">
+                                    <i class="bi bi-x-circle"></i> Undo repost
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                }
+            </header>
+
+            @* ============================================================ *@
+            @* Content — from the display DTO (parent content for reposts)  *@
+            @* ============================================================ *@
+            @if (!string.IsNullOrWhiteSpace(display.Content))
+            {
+                <div class="post-content">
+                    <p>@Html.Raw(HiveCore.Extensions.StringExtensions.Linkify(display.Content))</p>
+                </div>
+            }
+
+            @* ============================================================ *@
+            @* Media                                                        *@
+            @* ============================================================ *@
+            @if (display.Media.Any())
+            {
+                <div class="post-media post-media-@Math.Min(display.Media.Count, 4)">
+                    @foreach (var m in display.Media.Take(4))
+                    {
+                        if (m.Type == HiveCore.Models.Entities.MediaType.Video)
+                        {
+                            <video controls preload="metadata" poster="@m.ThumbnailUrl">
+                                <source src="@m.Url" type="@m.ContentType" />
+                            </video>
+                        }
+                        else
+                        {
+                            <a href="@m.Url" target="_blank" class="post-media-item">
+                                <img src="@m.Url" alt="@(m.AltText ?? "")" loading="lazy" />
+                            </a>
+                        }
+                    }
+                </div>
+            }
+
+            @* ============================================================ *@
+            @* Quoted parent (only for quote-reposts, not plain reposts)    *@
+            @* ============================================================ *@
+            @if (isQuote)
+            {
+                <a href="/Post/@Model.ParentPost!.Id" class="post-quote">
+                    <div class="post-quote-header">
+                        <img src="@(Model.ParentPost!.Author.AvatarUrl ?? "/images/default-avatar.png")" alt="" />
+                        <strong>@Model.ParentPost!.Author.DisplayName</strong>
+                        <span class="post-author-handle">@@@Model.ParentPost!.Author.Username</span>
+                        <span class="post-dot">·</span>
+                        <span>@(Model.ParentPost!.RelativeTime ?? "")</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.ParentPost!.Content))
+                    {
+                        <p>@Model.ParentPost!.Content</p>
+                    }
+                    @if (Model.ParentPost!.Media.Any())
+                    {
+                        <div class="post-quote-media">
+                            <img src="@Model.ParentPost!.Media.First().Url" alt="" loading="lazy" />
+                        </div>
+                    }
+                </a>
+            }
+
+            @* ============================================================ *@
+            @* Actions — target the DISPLAY post (parent for reposts)       *@
+            @* ============================================================ *@
+            <footer class="post-actions">
+                <a href="@displayPostUrl" class="post-action" title="Comments">
+                    <i class="bi bi-chat"></i>
+                    <span>@display.CommentsCount</span>
+                </a>
+
+                <button type="button"
+                        class="post-action js-repost @(display.IsRepostedByCurrentUser ? "active" : "")"
+                        data-id="@display.Id" title="Repost">
+                    <i class="bi bi-repeat"></i>
+                    <span class="js-repost-count">@display.RepostsCount</span>
+                </button>
+
+                <button type="button"
+                        class="post-action js-like @(display.IsLikedByCurrentUser ? "liked" : "")"
+                        data-id="@display.Id" title="Like">
+                    <i class="bi @(display.IsLikedByCurrentUser ? "bi-heart-fill" : "bi-heart")"></i>
+                    <span class="js-like-count">@display.LikesCount</span>
+                </button>
+
+                <button type="button"
+                        class="post-action js-bookmark @(display.IsBookmarkedByCurrentUser ? "bookmarked" : "")"
+                        data-id="@display.Id" title="Bookmark">
+                    <i class="bi @(display.IsBookmarkedByCurrentUser ? "bi-bookmark-fill" : "bi-bookmark")"></i>
+                    <span class="js-bookmark-count">@display.BookmarksCount</span>
+                </button>
+
+                <button type="button" class="post-action js-share" data-url="@displayPostUrl" title="Share">
+                    <i class="bi bi-share"></i>
+                </button>
+            </footer>
+        </div>
+    </div>
+</article>

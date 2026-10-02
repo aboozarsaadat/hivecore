@@ -1,0 +1,102 @@
+﻿@model HiveCore.Models.ViewModels.ProfileSettingsViewModel
+@using HiveCore.Utilities
+@{
+    ViewData["Title"] = "Settings";
+
+    // Safely resolve the current username from claims.
+    // Prefer the custom "uname" claim set by JwtHelper, fall back to Identity.Name,
+    // and finally to an empty string so we never dereference a null reference.
+    var username = User.FindFirst(Constants.Claims.Username)?.Value
+        ?? User.Identity?.Name
+        ?? string.Empty;
+
+    var backUrl = string.IsNullOrEmpty(username)
+        ? "/"
+        : $"/Profile/{username}";
+}
+
+<div class="page-column">
+    <div class="page-header">
+        <a href="@backUrl" class="page-back">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <h1>Settings</h1>
+    </div>
+
+    <form method="post" class="form-card">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+        <section class="settings-section">
+            <h2>Notifications</h2>
+            <div class="form-check">
+                <input asp-for="EmailNotificationsEnabled" class="form-check-input" />
+                <label asp-for="EmailNotificationsEnabled" class="form-check-label">
+                    Email notifications
+                </label>
+            </div>
+            <div class="form-check">
+                <input asp-for="PushNotificationsEnabled" class="form-check-input" />
+                <label asp-for="PushNotificationsEnabled" class="form-check-label">
+                    Push notifications
+                </label>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <h2>Privacy</h2>
+            <div class="form-check">
+                <input asp-for="IsPrivate" class="form-check-input" />
+                <label asp-for="IsPrivate" class="form-check-label">Private account</label>
+            </div>
+            <div class="form-check">
+                <input asp-for="ShowOnlineStatus" class="form-check-input" />
+                <label asp-for="ShowOnlineStatus" class="form-check-label">Show online status</label>
+            </div>
+        </section>
+
+        <section class="settings-section">
+            <h2>Preferences</h2>
+            <div class="form-group">
+                <label asp-for="PreferredLanguage">Language</label>
+                <select asp-for="PreferredLanguage" class="form-select">
+                    <option value="en">English</option>
+                    <option value="fa">فارسی</option>
+                    <option value="ar">العربية</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                </select>
+                <span asp-validation-for="PreferredLanguage" class="text-danger small"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TimeZone">Time zone</label>
+                <input asp-for="TimeZone" class="form-control"
+                       placeholder="e.g. UTC, Asia/Tehran, America/New_York" />
+                <span asp-validation-for="TimeZone" class="text-danger small"></span>
+            </div>
+        </section>
+
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Save settings
+            </button>
+        </div>
+    </form>
+
+    <div class="danger-zone">
+        <h2>Danger zone</h2>
+        <p class="text-muted small mb-3">
+            Deactivating your account hides your profile and posts.
+            You can reactivate anytime by signing in again.
+        </p>
+        <form method="post" action="/Account/Deactivate"
+              onsubmit="return confirm('Deactivate your account? This will hide your profile and posts.');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger">
+                <i class="bi bi-person-dash"></i> Deactivate account
+            </button>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,41 @@
+﻿@model HiveCore.Models.ViewModels.CommentViewModel
+@{
+    var formId = "commentForm-" + Guid.NewGuid().ToString("N")[..6];
+    var avatarUrl = User.FindFirst("avatar")?.Value ?? "/images/default-avatar.png";
+    var placeholder = Model.ParentCommentId.HasValue
+        ? "Post your reply…"
+        : "Post your comment…";
+    var submitLabel = Model.ParentCommentId.HasValue ? "Reply" : "Comment";
+    var submitIcon = Model.ParentCommentId.HasValue ? "bi-reply" : "bi-chat";
+}
+
+<form id="@formId"
+      method="post"
+      action="/Comment/Create"
+      class="comment-form js-comment-form">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="PostId" />
+    <input type="hidden" asp-for="ParentCommentId" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+
+    <div class="comment-form-row">
+        <img class="comment-form-avatar" src="@avatarUrl" alt="You" />
+
+        <div class="comment-form-body">
+            <textarea asp-for="Content"
+                      class="comment-form-input"
+                      placeholder="@placeholder"
+                      rows="2"
+                      maxlength="1000"></textarea>
+            <span asp-validation-for="Content" class="text-danger small"></span>
+
+            <div class="comment-form-actions">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="bi @submitIcon"></i> @submitLabel
+                </button>
+            </div>
+        </div>
+    </div>
+</form>

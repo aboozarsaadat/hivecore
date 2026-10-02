@@ -1,0 +1,227 @@
+﻿@model HiveCore.Areas.Admin.Controllers.AdminUserDetailsViewModel
+@{
+    ViewData["Title"] = $"User: @@@Model.Username";
+    ViewData["Subtitle"] = Model.Email;
+}
+
+<div class="row g-3">
+
+    <!-- LEFT: Profile card -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <img src="@(Model.AvatarUrl ?? "/images/default-avatar.png")"
+                     class="rounded-circle mb-3" width="96" height="96" alt="" />
+                <h5 class="mb-0">
+                    @Model.DisplayName
+                    @if (Model.IsVerified)
+                    {
+                        <i class="bi bi-patch-check-fill text-primary"></i>
+                    }
+                </h5>
+                <p class="text-muted mb-2">@@@Model.Username</p>
+
+                <div class="d-flex justify-content-center gap-2 flex-wrap mb-3">
+                    @if (Model.IsDeleted)
+                    {
+                        <span class="badge bg-secondary">Deleted</span>
+                    }
+                    @if (Model.IsSuspended)
+                    {
+                        <span class="badge bg-danger">Suspended</span>
+                    }
+                    @if (Model.IsPrivate)
+                    {
+                        <span class="badge bg-warning text-dark">Private</span>
+                    }
+                    @if (!Model.EmailConfirmed)
+                    {
+                        <span class="badge bg-info-subtle text-info">Email unconfirmed</span>
+                    }
+                    @if (Model.TwoFactorEnabled)
+                    {
+                        <span class="badge bg-success-subtle text-success">2FA enabled</span>
+                    }
+                </div>
+
+                <div class="row text-center small">
+                    <div class="col-4">
+                        <div class="fw-bold">@Model.FollowersCount</div>
+                        <div class="text-muted">Followers</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold">@Model.FollowingCount</div>
+                        <div class="text-muted">Following</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="fw-bold">@Model.PostsCount</div>
+                        <div class="text-muted">Posts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-shield me-2"></i>Roles</h6>
+            </div>
+            <ul class="list-group list-group-flush">
+                @if (!Model.Roles.Any())
+                {
+                    <li class="list-group-item text-muted">No roles</li>
+                }
+                @foreach (var r in Model.Roles)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>@r</span>
+                        <form method="post" action="/Admin/Users/RemoveRole" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="role" value="@r" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+            <div class="card-body">
+                <form method="post" action="/Admin/Users/AddRole" class="d-flex gap-2">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <select name="role" class="form-select form-select-sm">
+                        <option value="Admin">Admin</option>
+                        <option value="Moderator">Moderator</option>
+                        <option value="Verified">Verified</option>
+                        <option value="User">User</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Details + Actions -->
+    <div class="col-lg-8">
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions</h6>
+            </div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <form method="post" action="/Admin/Users/Verify/@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm @(Model.IsVerified ? "btn-outline-secondary" : "btn-success")">
+                        <i class="bi bi-patch-check"></i>
+                        @(Model.IsVerified ? "Remove verification" : "Verify user")
+                    </button>
+                </form>
+
+                <form method="post" action="/Admin/Users/Suspend/@Model.Id" class="d-flex gap-2">
+                    @Html.AntiForgeryToken()
+                    @if (!Model.IsSuspended)
+                    {
+                        <input type="text" name="reason" class="form-control form-control-sm"
+                               placeholder="Suspension reason…" style="width: 200px;" />
+                    }
+                    <button type="submit" class="btn btn-sm @(Model.IsSuspended ? "btn-outline-success" : "btn-warning")">
+                        <i class="bi bi-shield-exclamation"></i>
+                        @(Model.IsSuspended ? "Lift suspension" : "Suspend")
+                    </button>
+                </form>
+
+                @if (Model.AccessFailedCount > 0 || (Model.LockoutEnd.HasValue && Model.LockoutEnd > DateTimeOffset.UtcNow))
+                {
+                    <form method="post" action="/Admin/Users/Unlock/@Model.Id">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-unlock"></i> Unlock account
+                        </button>
+                    </form>
+                }
+
+                <form method="post" action="/Admin/Users/SoftDelete/@Model.Id"
+                      onsubmit="return confirm('@(Model.IsDeleted ? "Restore this user?" : "Soft-delete this user?")');">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm @(Model.IsDeleted ? "btn-outline-success" : "btn-outline-danger")">
+                        <i class="bi bi-trash"></i>
+                        @(Model.IsDeleted ? "Restore user" : "Soft delete")
+                    </button>
+                </form>
+
+                <a href="/Profile/@Model.Username" target="_blank" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-box-arrow-up-right"></i> View public profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Account information</h6>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">User ID</dt>
+                    <dd class="col-sm-9"><code>@Model.Id</code></dd>
+
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+
+                    <dt class="col-sm-3">Bio</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Bio) ? "—" : Model.Bio)</dd>
+
+                    <dt class="col-sm-3">Location</dt>
+                    <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Location) ? "—" : Model.Location)</dd>
+
+                    <dt class="col-sm-3">Website</dt>
+                    <dd class="col-sm-9">
+                        @if (!string.IsNullOrWhiteSpace(Model.Website))
+                        {
+                            <a href="@Model.Website" target="_blank" rel="noopener">@Model.Website</a>
+                        }
+                        else
+                        {
+                            @("—")
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Created</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("u")</dd>
+
+                    <dt class="col-sm-3">Updated</dt>
+                    <dd class="col-sm-9">@Model.UpdatedAt.ToString("u")</dd>
+
+                    <dt class="col-sm-3">Last login</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.LastLoginAt.HasValue)
+                        {
+                            <span>@Model.LastLoginAt.Value.ToString("u")</span>
+                            @if (!string.IsNullOrWhiteSpace(Model.LastLoginIp))
+                            {
+                                <small class="text-muted ms-2">from @Model.LastLoginIp</small>
+                            }
+                        }
+                        else
+                        {
+                            @("Never")
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Failed logins</dt>
+                    <dd class="col-sm-9">@Model.AccessFailedCount</dd>
+
+                    <dt class="col-sm-3">Likes received</dt>
+                    <dd class="col-sm-9">@Model.LikesReceivedCount</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a href="/Admin/Users" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to users
+    </a>
+</div>
